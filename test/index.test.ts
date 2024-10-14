@@ -92,7 +92,8 @@ test('should default to 3 attempts with 200 delay', async (t) => {
       handleError: null,
       handleTimeout: null,
       beforeAttempt: null,
-      calculateDelay: null
+      calculateDelay: null,
+      signal: null
     });
 
     attemptCount++;
@@ -528,6 +529,21 @@ test('should allow attempts to be aborted via handleError', async (t) => {
     }
   }));
   t.is(err.retryable, false);
+});
+
+test('should allow attempts to be aborted via AbortSignal', async (t) => {
+  const contoller = new AbortController();
+  const err = await t.throws(retry(async (context) => {
+    if (context.attemptNum === 1) {
+      contoller.abort();
+    }
+    throw new Error('try again');
+  }, {
+    delay: 0,
+    maxAttempts: 4,
+    signal: contoller.signal
+  }));
+  t.is(err.code, 'ATTEMPT_ABORTED');
 });
 
 test('should wait for async handleError to resolve before retrying', async (t) => {
