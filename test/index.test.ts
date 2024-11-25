@@ -1,3 +1,4 @@
+import 'abortcontroller-polyfill/dist/abortcontroller-polyfill-only';
 import test from 'ava';
 import {
   retry, sleep, defaultCalculateDelay,
